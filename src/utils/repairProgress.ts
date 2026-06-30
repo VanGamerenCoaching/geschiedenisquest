@@ -1,5 +1,5 @@
 import type { Question, QuestionProgress, RepairProgress, RepairQuestionStats } from "../types/question";
-import { getAllQuestions, getRandomQuestions } from "./questions";
+import { getAllQuestions, getRandomQuestions, withShuffledOptions } from "./questions";
 
 const storageKey = "geschiedenisquest_local_progress_v1";
 const legacyStorageKey = "geschiedenisquest_repair_progress_v1";
@@ -219,5 +219,6 @@ export function getWeightedRepairQuestions(progress: RepairProgress, count = 6):
 
   return selectedIds
     .map((questionId) => questionsById.get(questionId))
-    .filter((question): question is Question => question !== undefined);
+    .filter((question): question is Question => question !== undefined)
+    .map(withShuffledOptions);
 }
