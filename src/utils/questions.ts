@@ -123,15 +123,22 @@ export function getQuestionsBySection(section: string): readonly Question[] {
   return getAllQuestions().filter((question) => question.section === section);
 }
 
+export function shuffleItems<T>(items: readonly T[]): T[] {
+  const shuffled = [...items];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
+
 export function getRandomQuestions<T>(
   questions: readonly T[],
   count: number,
 ): readonly T[] {
-  return [...questions].sort(() => Math.random() - 0.5).slice(0, Math.min(count, questions.length));
-}
-
-export function getQuizRoundQuestions(section: string, count = 10): readonly Question[] {
-  return getRandomQuestions(getQuestionsBySection(section), count);
+  return shuffleItems(questions).slice(0, Math.min(count, questions.length));
 }
 
 export function getVisibleOptions(question: Question): readonly string[] {
@@ -140,6 +147,21 @@ export function getVisibleOptions(question: Question): readonly string[] {
   }
 
   return question.options;
+}
+
+export function getShuffledVisibleOptions(question: Question): readonly string[] {
+  return shuffleItems(getVisibleOptions(question));
+}
+
+export function withShuffledOptions(question: Question): Question {
+  return {
+    ...question,
+    options: getShuffledVisibleOptions(question),
+  };
+}
+
+export function getQuizRoundQuestions(section: string, count = 10): readonly Question[] {
+  return getRandomQuestions(getQuestionsBySection(section), count).map(withShuffledOptions);
 }
 
 export function getQuestionsByType(type: string): readonly Question[] {
@@ -266,7 +288,7 @@ export function getBossLevelQuestions(): readonly Question[] {
     getRandomQuestions(getQuestionsBySection(section), 4),
   );
 
-  return getRandomQuestions(questions, 20);
+  return getRandomQuestions(questions, 20).map(withShuffledOptions);
 }
 
 export function getWrongQuestions(progress: QuestionProgress | undefined): readonly Question[] {
