@@ -5,7 +5,7 @@ import { ProgressMeter } from "../components/ProgressMeter";
 import type { ActivityKey, ScreenKey } from "../types/game";
 import type { QuestionProgress } from "../types/question";
 import { calculatePercent } from "../utils/scoring";
-import { coreTerms, getTermBattleCards, type TermBattleCard } from "../utils/questions";
+import { coreTerms, getTermBattleCards, shuffleItems, type TermBattleCard } from "../utils/questions";
 
 interface TermsBattleProps {
   selectedSection?: string;
@@ -29,10 +29,6 @@ interface BattlePrompt {
 
 const xpPerCorrectAnswer = 10;
 
-function shuffle<T>(items: readonly T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5);
-}
-
 function getTermKey(term: string): string {
   return term.toLocaleLowerCase("nl-NL");
 }
@@ -44,7 +40,7 @@ function getUniqueValues(values: readonly string[]): string[] {
 function getBattleChoices(correctAnswer: string, distractors: readonly string[]): readonly string[] {
   const wrongChoices = getUniqueValues(distractors.filter((value) => value !== correctAnswer));
 
-  return shuffle([correctAnswer, ...shuffle(wrongChoices).slice(0, 3)]);
+  return shuffleItems([correctAnswer, ...shuffleItems(wrongChoices).slice(0, 3)]);
 }
 
 function createPrompt(card: TermBattleCard, cards: readonly TermBattleCard[]): BattlePrompt {
